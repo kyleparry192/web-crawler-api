@@ -13,6 +13,6 @@ public class CrawlResponse {
 
     private final String origin;
 
-    private final List<CrawlRecord> links;
+    private final List<String> links;
 
 }
