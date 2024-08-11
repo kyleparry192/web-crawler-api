@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -30,12 +31,14 @@ public class WebCrawlerGateway {
     }
 
     public String fetchBody(@NonNull final URI url) {
-        final ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            log.warn("Received '{}' response from '{}'", response.getStatusCode(), url);
+        log.debug("Calling : '{}'", url);
+        try {
+            final ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
+            return response.getBody();
+        } catch (final HttpStatusCodeException e) {
+            log.warn("Received '{}' response from '{}'", e.getStatusCode(), url);
             return null;
         }
-        return response.getBody();
     }
 
 }
