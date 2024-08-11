@@ -7,7 +7,30 @@ visit each URL it finds on the same domain. It should print each URL visited, an
 The crawler should be limited to one subdomain - so when you start with *https://example.com/*, it would crawl all pages
 on the example.com website, but not follow external links, for example to facebook.com or community.example.com.
 
+## API Reference
+
+```http
+  POST /api/v1/crawl
+```
+
+#### Request
+
+| Parameter | Type     | Description                                            |
+|:----------|:---------|:-------------------------------------------------------|
+| `origin`  | `string` | **Required**. The URL of the website you wish to crawl |
+
+#### Response
+
+| Parameter | Type     | Description                              |
+|:----------|:---------|:-----------------------------------------|
+| `origin`  | `string` | The URL of the website which was crawled |
+| `links`   | `list`   | A list of all the URLs which were found  |
+
 ## Future Enhancements
 
 - Utilise multi-threading so that the crawling process is not limited to a single thread.
 - Follow 308 (Permanent Redirect) responses to the new location.
+
+## Authors
+
+- [@kyleparry192](https://www.github.com/kyleparry192)
