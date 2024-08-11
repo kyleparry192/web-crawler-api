@@ -1,7 +1,10 @@
-package com.kyleparry.web.crawler.api.util;
+package com.kyleparry.web.crawler.api.service;
 
 import org.jsoup.nodes.Document;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
 import java.util.Set;
@@ -9,7 +12,15 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DocumentUtilsTests {
+@ExtendWith(MockitoExtension.class)
+public class DocumentServiceTests {
+
+    private DocumentService documentService;
+
+    @BeforeEach
+    void setUp() {
+        documentService = new DocumentService();
+    }
 
     @Test
     void testParse_whenBodyHtmlIsNull() {
@@ -18,7 +29,7 @@ public class DocumentUtilsTests {
 
         // When
         final NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> DocumentUtils.parse(html));
+                () -> documentService.parse(html));
 
         // Then
         assertThat(exception.getMessage()).isEqualTo("bodyHtml is marked non-null but is null");
@@ -30,7 +41,7 @@ public class DocumentUtilsTests {
         final String html = "<p><a href='http://example.com/' onclick='stealCookies()'>Link</a></p>";
 
         // When
-        final Document document = DocumentUtils.parse(html);
+        final Document document = documentService.parse(html);
 
         // Then
         final String expected = """
@@ -51,7 +62,7 @@ public class DocumentUtilsTests {
 
         // When
         final NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> DocumentUtils.extractUrlsForDomain(document, target));
+                () -> documentService.extractUrlsForDomain(document, target));
 
         // Then
         assertThat(exception.getMessage()).isEqualTo("document is marked non-null but is null");
@@ -65,7 +76,7 @@ public class DocumentUtilsTests {
 
         // When
         final NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> DocumentUtils.extractUrlsForDomain(document, target));
+                () -> documentService.extractUrlsForDomain(document, target));
 
         // Then
         assertThat(exception.getMessage()).isEqualTo("url is marked non-null but is null");
@@ -82,14 +93,15 @@ public class DocumentUtilsTests {
                 <p><a href="/contact-us">Link 3</a></p>
                 <p><a href="http://www.example.com/blog">Link 4</a></p>
                 <p><a href="http://other.example.com/blog">Link 5</a></p>
+                <p><a href="NOT VALID">Link 5</a></p>
                 </body>
                 </html>
                 """;
-        final Document document = DocumentUtils.parse(html);
+        final Document document = documentService.parse(html);
         final URI target = new URI("http://example.com");
 
         // When
-        final Set<URI> actual = DocumentUtils.extractUrlsForDomain(document, target);
+        final Set<URI> actual = documentService.extractUrlsForDomain(document, target);
 
         // Then
         assertThat(actual).extracting(URI::toString)

@@ -83,4 +83,25 @@ public class WebCrawlerControllerTests {
         verifyNoInteractions(webCrawlerService);
     }
 
+    @Test
+    void testFindAllUrls_whenInvalidOriginIsPresent() throws Exception {
+        // Given
+        final String requestContent = """
+                {
+                    "origin" : "Hello World!"
+                }
+                """;
+
+        // When
+        final ResultActions result = mvc.perform(post("/api/v1/crawl")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestContent))
+                .andDo(MockMvcResultHandlers.print());
+
+        // Then
+        result.andExpect(status().isBadRequest());
+
+        verifyNoInteractions(webCrawlerService);
+    }
+
 }

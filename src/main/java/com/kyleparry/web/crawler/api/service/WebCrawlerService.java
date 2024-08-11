@@ -1,7 +1,6 @@
 package com.kyleparry.web.crawler.api.service;
 
 import com.kyleparry.web.crawler.api.gateway.WebCrawlerGateway;
-import com.kyleparry.web.crawler.api.util.DocumentUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.jsoup.nodes.Document;
@@ -18,6 +17,7 @@ import java.util.Set;
 public class WebCrawlerService {
 
     private final WebCrawlerGateway webCrawlerGateway;
+    private final DocumentService documentService;
 
     public Set<URI> findAllUrls(@NonNull final URI url) {
         final PriorityQueue<URI> toBeVisited = new PriorityQueue<>();
@@ -33,8 +33,8 @@ public class WebCrawlerService {
 
             final Optional<String> responseContent = webCrawlerGateway.fetchResponseContent(target);
             if (responseContent.isPresent()) {
-                final Document document = DocumentUtils.parse(responseContent.get());
-                final Set<URI> discovered = DocumentUtils.extractUrlsForDomain(document, url);
+                final Document document = documentService.parse(responseContent.get());
+                final Set<URI> discovered = documentService.extractUrlsForDomain(document, url);
                 toBeVisited.addAll(discovered);
             }
 
