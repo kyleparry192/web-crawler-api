@@ -11,7 +11,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -20,24 +20,17 @@ public class WebCrawlerGateway {
 
     private final RestTemplate restTemplate;
 
-    public String fetchBody(@NonNull final String urlString) {
-        try {
-            final URI url = new URI(urlString);
-            return fetchBody(url);
-        } catch (final URISyntaxException e) {
-            log.error("Failed to create URI from '{}'", urlString, e);
-            return null;
-        }
-    }
-
-    public String fetchBody(@NonNull final URI url) {
-        log.debug("Calling : '{}'", url);
+    public Optional<String> fetchResponseContent(@NonNull final URI url) {
         try {
             final ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
-            return response.getBody();
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.warn("Received '{}' response from '{}'", response.getStatusCode(), url);
+                return Optional.empty();
+            }
+            return Optional.ofNullable(response.getBody());
         } catch (final HttpStatusCodeException e) {
             log.warn("Received '{}' response from '{}'", e.getStatusCode(), url);
-            return null;
+            return Optional.empty();
         }
     }
 

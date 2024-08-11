@@ -16,6 +16,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,13 +43,13 @@ public class WebCrawlerGatewayTests {
     }
 
     @Test
-    void testFetchBody_whenUriIsNull() {
+    void testFetchResponseContent_whenUriIsNull() {
         // Given
         final URI uri = null;
 
         // When
         final NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> webCrawlerGateway.fetchBody(uri));
+                () -> webCrawlerGateway.fetchResponseContent(uri));
 
         // Then
         assertThat(exception.getMessage()).isEqualTo("url is marked non-null but is null");
@@ -66,24 +67,25 @@ public class WebCrawlerGatewayTests {
             "ALREADY_REPORTED",
             "IM_USED"
     }, mode = INCLUDE)
-    void testFetchBody_whenResponseContentIsReturned(final HttpStatus status) throws Exception {
+    void testFetchResponseContent_whenResponseContentIsReturned(final HttpStatus status) throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/hello");
 
-        final String responseBody = "Hello World!";
+        final String responseContent = "Hello World!";
         mockServer.expect(ExpectedCount.once(), requestTo(uri))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withStatus(status)
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body(responseBody)
+                        .contentType(MediaType.TEXT_HTML)
+                        .body(responseContent)
                 );
 
         // When
-        final String actual = webCrawlerGateway.fetchBody(uri);
+        final Optional<String> actual = webCrawlerGateway.fetchResponseContent(uri);
 
         // Then
         mockServer.verify();
-        assertThat(actual).isEqualTo(responseBody);
+        assertThat(actual).isPresent();
+        assertThat(actual).get().isEqualTo(responseContent);
     }
 
     @ParameterizedTest
@@ -98,24 +100,22 @@ public class WebCrawlerGatewayTests {
             "ALREADY_REPORTED",
             "IM_USED"
     }, mode = EXCLUDE)
-    void testFetchBody_whenResponseContentIsNotReturned() throws Exception {
+    void testFetchResponseContent_whenResponseContentIsNotReturned(final HttpStatus status) throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/hello");
 
-        final String responseBody = "Hello World!";
         mockServer.expect(ExpectedCount.once(), requestTo(uri))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withStatus(HttpStatus.NOT_FOUND)
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body(responseBody)
+                .andRespond(withStatus(status)
+                        .contentType(MediaType.TEXT_HTML)
                 );
 
         // When
-        final String actual = webCrawlerGateway.fetchBody(uri);
+        final Optional<String> actual = webCrawlerGateway.fetchResponseContent(uri);
 
         // Then
         mockServer.verify();
-        assertThat(actual).isNull();
+        assertThat(actual).isEmpty();
     }
 
 }
