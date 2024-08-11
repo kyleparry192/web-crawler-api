@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -24,14 +25,18 @@ public class WebCrawlerGateway {
         try {
             final ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                log.warn("Received '{}' response from '{}'", response.getStatusCode(), url);
+                logNonSuccessfulResponseWarning(response.getStatusCode(), url.toString());
                 return Optional.empty();
             }
             return Optional.ofNullable(response.getBody());
         } catch (final HttpStatusCodeException e) {
-            log.warn("Received '{}' response from '{}'", e.getStatusCode(), url);
+            logNonSuccessfulResponseWarning(e.getStatusCode(), url.toString());
             return Optional.empty();
         }
+    }
+
+    private void logNonSuccessfulResponseWarning(final HttpStatusCode status, final String url) {
+        log.warn("Received '{}' response from '{}'", status, url);
     }
 
 }
