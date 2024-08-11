@@ -48,8 +48,9 @@ public class WebCrawlerControllerTests {
 
         // When
         final ResultActions result = mvc.perform(post("/api/v1/crawl")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestContent));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestContent))
+                .andDo(MockMvcResultHandlers.print());
 
         // Then
         result.andExpect(status().isOk())

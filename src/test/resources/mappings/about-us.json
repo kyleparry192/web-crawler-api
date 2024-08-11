@@ -1,0 +1,14 @@
+{
+  "priority": 1,
+  "request": {
+    "urlPath": "/about-us",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html; charset=utf-8"
+    },
+    "bodyFileName": "about-us.html"
+  }
+}
