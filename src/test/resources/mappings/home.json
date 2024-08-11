@@ -1,0 +1,14 @@
+{
+  "priority": 1,
+  "request": {
+    "urlPath": "/",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html; charset=utf-8"
+    },
+    "bodyFileName": "home.html"
+  }
+}

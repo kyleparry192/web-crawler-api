@@ -1,0 +1,10 @@
+{
+  "priority": 1,
+  "request": {
+    "urlPath": "/permanent-redirect",
+    "method": "GET"
+  },
+  "response": {
+    "status": 308
+  }
+}
